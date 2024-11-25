@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
 
   const lsClient = new Client({
     apiKey: process.env.LANGCHAIN_API_KEY,
+    apiUrl: process.env.LANGCHAIN_API_URL,
   });
 
   try {

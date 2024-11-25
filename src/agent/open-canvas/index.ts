@@ -49,44 +49,44 @@ const builder = new StateGraph(OpenCanvasGraphAnnotation)
   // Start node & edge
   .addNode("generatePath", generatePath)
   .addEdge(START, "generatePath")
-  // Nodes
+  // // Nodes
   .addNode("replyToGeneralInput", replyToGeneralInput)
-  .addNode("rewriteArtifact", rewriteArtifact)
-  .addNode("rewriteArtifactTheme", rewriteArtifactTheme)
-  .addNode("rewriteCodeArtifactTheme", rewriteCodeArtifactTheme)
-  .addNode("updateArtifact", updateArtifact)
-  .addNode("updateHighlightedText", updateHighlightedText)
-  .addNode("generateArtifact", generateArtifact)
+  // .addNode("rewriteArtifact", rewriteArtifact)
+  // .addNode("rewriteArtifactTheme", rewriteArtifactTheme)
+  // .addNode("rewriteCodeArtifactTheme", rewriteCodeArtifactTheme)
+  // .addNode("updateArtifact", updateArtifact)
+  // .addNode("updateHighlightedText", updateHighlightedText)
+  // .addNode("generateArtifact", generateArtifact)
   .addNode("customAction", customAction)
-  .addNode("generateFollowup", generateFollowup)
+  // .addNode("generateFollowup", generateFollowup)
   .addNode("cleanState", cleanState)
-  .addNode("reflect", reflectNode)
+  // .addNode("reflect", reflectNode)
   .addNode("generateTitle", generateTitleNode)
-  // Initial router
+  // // Initial router
   .addConditionalEdges("generatePath", routeNode, [
-    "updateArtifact",
-    "rewriteArtifactTheme",
-    "rewriteCodeArtifactTheme",
+    // "updateArtifact",
+    // "rewriteArtifactTheme",
+    // "rewriteCodeArtifactTheme",
     "replyToGeneralInput",
-    "generateArtifact",
-    "rewriteArtifact",
+    // "generateArtifact",
+    // "rewriteArtifact",
     "customAction",
-    "updateHighlightedText",
+    // "updateHighlightedText",
   ])
-  // Edges
-  .addEdge("generateArtifact", "generateFollowup")
-  .addEdge("updateArtifact", "generateFollowup")
-  .addEdge("updateHighlightedText", "generateFollowup")
-  .addEdge("rewriteArtifact", "generateFollowup")
-  .addEdge("rewriteArtifactTheme", "generateFollowup")
-  .addEdge("rewriteCodeArtifactTheme", "generateFollowup")
-  .addEdge("customAction", "generateFollowup")
-  // End edges
+  // // Edges
+  // .addEdge("generateArtifact", "generateFollowup")
+  // .addEdge("updateArtifact", "generateFollowup")
+  // .addEdge("updateHighlightedText", "generateFollowup")
+  // .addEdge("rewriteArtifact", "generateFollowup")
+  // .addEdge("rewriteArtifactTheme", "generateFollowup")
+  // .addEdge("rewriteCodeArtifactTheme", "generateFollowup")
+  // .addEdge("customAction", "generateFollowup")
+  // // End edges
   .addEdge("replyToGeneralInput", "cleanState")
-  // Only reflect if an artifact was generated/updated.
-  .addEdge("generateFollowup", "reflect")
-  .addEdge("reflect", "cleanState")
-  .addConditionalEdges("cleanState", conditionallyGenerateTitle, [
+  // // Only reflect if an artifact was generated/updated.
+  // .addEdge("generateFollowup", "reflect")
+  // .addEdge("reflect", "cleanState")
+ .addConditionalEdges("cleanState", conditionallyGenerateTitle, [
     END,
     "generateTitle",
   ])

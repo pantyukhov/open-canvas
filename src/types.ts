@@ -79,6 +79,12 @@ export interface Highlight {
   endCharIndex: number;
 }
 
+export interface ScadeAgent {
+  id: string;
+  name: string;
+  description: string;
+}
+
 export type LanguageOptions =
   | "english"
   | "mandarin"

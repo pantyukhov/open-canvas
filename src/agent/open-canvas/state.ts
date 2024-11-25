@@ -5,7 +5,7 @@ import {
   ReadingLevelOptions,
   CodeHighlight,
   ArtifactV3,
-  TextHighlight,
+  TextHighlight, ScadeAgent,
 } from "../../types";
 import { Annotation, MessagesAnnotation } from "@langchain/langgraph";
 
@@ -33,6 +33,12 @@ export const OpenCanvasGraphAnnotation = Annotation.Root({
    * The language to translate the artifact to.
    */
   language: Annotation<LanguageOptions | undefined>,
+
+  /**
+   * The language to translate the artifact to.
+   */
+  scadeAgents: Annotation<ScadeAgent | undefined>,
+
   /**
    * The length of the artifact to regenerate to.
    */
