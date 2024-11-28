@@ -53,6 +53,12 @@ export const generatePath = async (
     };
   }
 
+  if (state.scadeAgents) {
+    return {
+      next: "pickScadeAgentsParameters",
+    };
+  }
+
   if (state.customQuickActionId) {
     return {
       next: "customAction",
