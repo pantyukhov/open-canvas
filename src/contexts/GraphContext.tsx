@@ -136,6 +136,16 @@ export function GraphProvider({ children }: { children: ReactNode }) {
   const [runId, setRunId] = useState<string>();
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
+  console.log({
+    messages,
+    artifact,
+    isStreaming,
+    updateRenderedArtifactRequired,
+    isArtifactSaved,
+    firstTokenReceived,
+    feedbackSubmitted,
+  })
+
   useEffect(() => {
     if (userData.user) return;
     userData.getUser();

@@ -1,12 +1,14 @@
-import { END, START, StateGraph } from "@langchain/langgraph";
+import { END, LangGraphRunnableConfig, START, StateGraph } from "@langchain/langgraph";
 import { OpenCanvasGraphAnnotation } from "./state";
 import { generate  } from "@/agent/open-canvas/nodes/rag";
 import { replyToGeneralInput } from "@/agent/open-canvas/nodes/rag/replyToGeneralInput";
-import { generateArtifact } from "@/agent/open-canvas/nodes/rag/generateArtifact";
+import { generateArtifact, ragToolNode, ragTools } from "@/agent/open-canvas/nodes/rag/generateArtifact";
 import { generateFollowup } from "@/agent/open-canvas/nodes/generateFollowup";
 import { reflectNode } from "@/agent/open-canvas/nodes/reflect";
 import { DEFAULT_INPUTS } from "@/constants";
 import { generatePath } from "@/agent/open-canvas/nodes/rag/generatePath";
+import { getModelConfig, getModelFromConfig } from "@/agent/utils";
+import { AIMessage } from "@langchain/core/messages";
 // import { ChatOpenAI } from "@langchain/openai";
 // import { createRetrieverTool } from "langchain/dist/tools/retriever";
 
@@ -21,7 +23,7 @@ import { generatePath } from "@/agent/open-canvas/nodes/rag/generatePath";
 //   });
 // };
 //
-const cleanState = (_: typeof OpenCanvasGraphAnnotation.State) => {
+const cleanState = (_: typeof OpenCanvasGraphAnnotation.State,) => {
   return {
     ...DEFAULT_INPUTS,
   };
@@ -43,29 +45,63 @@ const cleanState = (_: typeof OpenCanvasGraphAnnotation.State) => {
 // };
 
 
+// Define the function that calls the model
+async function callModel(state: typeof OpenCanvasGraphAnnotation.State,
+                         config: LangGraphRunnableConfig) {
+
+  const smallModel = (await getModelFromConfig(config)).bindTools(ragTools);
+  const messages = state.messages;
+  const response = await smallModel.invoke(messages);
+
+  // We return a list, because this will get added to the existing list
+  return { messages: [response] };
+}
+
+
+// Define the function that determines whether to continue or not
+// We can extract the state typing via `StateAnnotation.State`
+function shouldContinue(state: typeof OpenCanvasGraphAnnotation.State) {
+  const messages = state.messages;
+  const lastMessage = messages[messages.length - 1] as AIMessage;
+
+  // If the LLM makes a tool call, then we route to the "tools" node
+  if (lastMessage.tool_calls?.length) {
+    return "tools";
+  }
+  // Otherwise, we stop (reply to the user)
+  return END;
+}
 
 const builder = new StateGraph(OpenCanvasGraphAnnotation)
-  .addNode("generatePath", generatePath)
-  // .addNode("replyToGeneralInput", replyToGeneralInput) // Add agent node
-  .addNode("generateArtifact", generateArtifact) // Add grading node
-  .addEdge(START, "generatePath") // Start to agent node
-  .addEdge("generatePath", "generateArtifact")
-  .addNode("generateFollowup", generateFollowup)
-  .addNode("cleanState", cleanState)
-  .addNode("reflect", reflectNode)
-  // .addEdge("replyToGeneralInput", "generateRagArtifact")
-  .addEdge("generateArtifact", "generateFollowup")
-  // .addConditionalEdges(
-  //   "replyToGeneralInput",
-  //   shouldRetrieve, // Conditional function to evaluate agent's decision
-  //   {
-  //     true: "gradeDocuments", // If condition is true
-  //     false: "generate", // If condition is false
-  //   }
-  // )
-  .addEdge("generateFollowup", "reflect")
-  .addEdge("reflect", "cleanState")
-  .addEdge("cleanState", END); // End the graph
+  .addNode("agent", callModel)
+  .addNode("tools", ragToolNode)
+  .addEdge(START, "agent")
+  .addConditionalEdges("agent", shouldContinue)
+  .addEdge("tools", "agent");
+
+
+// const builder = new StateGraph(OpenCanvasGraphAnnotation)
+//   .addNode("generatePath", callModel)
+//   // .addNode("replyToGeneralInput", replyToGeneralInput) // Add agent node
+//   .addNode("generateArtifact", ragToolNode) // Add grading node
+//   .addEdge(START, "generatePath") // Start to agent node
+//   .addEdge("generatePath", "generateArtifact")
+//   .addNode("generateFollowup", generateFollowup)
+//   .addNode("cleanState", cleanState)
+//   // .addNode("reflect", reflectNode)
+//   // .addEdge("replyToGeneralInput", "generateRagArtifact")
+//   .addEdge("generateArtifact", "generateFollowup")
+//   // .addConditionalEdges(
+//   //   "replyToGeneralInput",
+//   //   shouldRetrieve, // Conditional function to evaluate agent's decision
+//   //   {
+//   //     true: "gradeDocuments", // If condition is true
+//   //     false: "generate", // If condition is false
+//   //   }
+//   // )
+//   .addEdge("generateFollowup", "cleanState")
+//   // .addEdge("reflect", "cleanState")
+//   .addEdge("cleanState", END); // End the graph
 //
 // const builder = new StateGraph(OpenCanvasGraphAnnotation)
 //   // Start node & edge
