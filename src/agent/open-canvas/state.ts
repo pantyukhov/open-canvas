@@ -71,6 +71,13 @@ export const OpenCanvasGraphAnnotation = Annotation.Root({
    * The ID of the custom quick action to use.
    */
   customQuickActionId: Annotation<string | undefined>,
+
+  question: Annotation<string | undefined>,
+
+  generation: Annotation<string | undefined>,
+
+  documents: Annotation<string[] | undefined>,
+
 });
 
 export type OpenCanvasGraphReturnType = Partial<
