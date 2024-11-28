@@ -6,6 +6,7 @@ import { generateArtifact } from "@/agent/open-canvas/nodes/rag/generateArtifact
 import { generateFollowup } from "@/agent/open-canvas/nodes/generateFollowup";
 import { reflectNode } from "@/agent/open-canvas/nodes/reflect";
 import { DEFAULT_INPUTS } from "@/constants";
+import { generatePath } from "@/agent/open-canvas/nodes/rag/generatePath";
 // import { ChatOpenAI } from "@langchain/openai";
 // import { createRetrieverTool } from "langchain/dist/tools/retriever";
 
@@ -44,14 +45,16 @@ const cleanState = (_: typeof OpenCanvasGraphAnnotation.State) => {
 
 
 const builder = new StateGraph(OpenCanvasGraphAnnotation)
+  .addNode("generatePath", generatePath)
   // .addNode("replyToGeneralInput", replyToGeneralInput) // Add agent node
-  .addNode("generateRagArtifact", generateArtifact) // Add grading node
-  .addEdge(START, "generateRagArtifact") // Start to agent node
+  .addNode("generateArtifact", generateArtifact) // Add grading node
+  .addEdge(START, "generatePath") // Start to agent node
+  .addEdge("generatePath", "generateArtifact")
   .addNode("generateFollowup", generateFollowup)
   .addNode("cleanState", cleanState)
   .addNode("reflect", reflectNode)
   // .addEdge("replyToGeneralInput", "generateRagArtifact")
-  .addEdge("generateRagArtifact", "generateFollowup")
+  .addEdge("generateArtifact", "generateFollowup")
   // .addConditionalEdges(
   //   "replyToGeneralInput",
   //   shouldRetrieve, // Conditional function to evaluate agent's decision
@@ -62,7 +65,7 @@ const builder = new StateGraph(OpenCanvasGraphAnnotation)
   // )
   .addEdge("generateFollowup", "reflect")
   .addEdge("reflect", "cleanState")
-  .addEdge("generateFollowup", END); // End the graph
+  .addEdge("cleanState", END); // End the graph
 //
 // const builder = new StateGraph(OpenCanvasGraphAnnotation)
 //   // Start node & edge

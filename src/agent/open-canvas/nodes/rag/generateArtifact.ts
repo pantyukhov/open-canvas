@@ -59,7 +59,7 @@ export const generateArtifact = async (
       index: 1,
       type: "text",
       title: "Title",
-      fullMarkdown: userSystemPrompt,
+      fullMarkdown: "fullMarkdown fullMarkdown fullMarkdown fullMarkdown fullMarkdown fullMarkdown fullMarkdown fullMarkdown"
     }],
   };
 
