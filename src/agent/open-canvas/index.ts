@@ -51,8 +51,8 @@ async function callModel(state: typeof OpenCanvasGraphAnnotation.State,
 
   const smallModel = (await getModelFromConfig(config)).bindTools(ragTools);
   const messages = state.messages;
+  console.log(messages)
   const response = await smallModel.invoke(messages);
-
   // We return a list, because this will get added to the existing list
   return { messages: [response] };
 }
