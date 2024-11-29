@@ -48,7 +48,6 @@ const cleanState = (_: typeof OpenCanvasGraphAnnotation.State,) => {
 // Define the function that calls the model
 async function callModel(state: typeof OpenCanvasGraphAnnotation.State,
                          config: LangGraphRunnableConfig) {
-  console.log(state)
   const smallModel = (await getModelFromConfig(config)).bindTools(ragTools);
   const messages = state.messages;
   const response = await smallModel.invoke(messages);
@@ -62,7 +61,8 @@ async function callModel(state: typeof OpenCanvasGraphAnnotation.State,
 function shouldContinue(state: typeof OpenCanvasGraphAnnotation.State) {
   const messages = state.messages;
   const lastMessage = messages[messages.length - 1] as AIMessage;
-  console.log(state)
+  console.log('routing state', state)
+  console.log('routing lastMessage', lastMessage)
   // If the LLM makes a tool call, then we route to the "tools" node
   if (lastMessage.tool_calls?.length) {
     return "tools";
