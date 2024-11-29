@@ -48,10 +48,9 @@ const cleanState = (_: typeof OpenCanvasGraphAnnotation.State,) => {
 // Define the function that calls the model
 async function callModel(state: typeof OpenCanvasGraphAnnotation.State,
                          config: LangGraphRunnableConfig) {
-
+  console.log(state)
   const smallModel = (await getModelFromConfig(config)).bindTools(ragTools);
   const messages = state.messages;
-  console.log(messages)
   const response = await smallModel.invoke(messages);
   // We return a list, because this will get added to the existing list
   return { messages: [response] };
@@ -63,7 +62,7 @@ async function callModel(state: typeof OpenCanvasGraphAnnotation.State,
 function shouldContinue(state: typeof OpenCanvasGraphAnnotation.State) {
   const messages = state.messages;
   const lastMessage = messages[messages.length - 1] as AIMessage;
-
+  console.log(state)
   // If the LLM makes a tool call, then we route to the "tools" node
   if (lastMessage.tool_calls?.length) {
     return "tools";
@@ -73,11 +72,11 @@ function shouldContinue(state: typeof OpenCanvasGraphAnnotation.State) {
 }
 
 const builder = new StateGraph(OpenCanvasGraphAnnotation)
-  .addNode("agent", callModel)
+  .addNode("replyToGeneralInput", callModel)
   .addNode("tools", ragToolNode)
-  .addEdge(START, "agent")
-  .addConditionalEdges("agent", shouldContinue)
-  .addEdge("tools", "agent");
+  .addEdge(START, "replyToGeneralInput")
+  .addConditionalEdges("replyToGeneralInput", shouldContinue)
+  .addEdge("tools", "replyToGeneralInput");
 
 
 // const builder = new StateGraph(OpenCanvasGraphAnnotation)
